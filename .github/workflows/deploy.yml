@@ -1,0 +1,49 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Deploy to App Engine
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # Build & test all services in sub-folders
+  hello-service:
+    uses: api-sde/swift-shop-go-gcp/.github/workflows/service.yml@main
+    with:
+      serviceName: hello
+
+  health-service:
+    uses: api-sde/swift-shop-go-gcp/.github/workflows/service.yml@main
+    with:
+      serviceName: health
+
+  user-service:
+    uses: api-sde/swift-shop-go-gcp/.github/workflows/service.yml@main
+    with:
+      serviceName: user
+
+  deploy:
+    needs: [hello-service, health-service, user-service]
+    name: Deploying to Google Cloud
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Deploy to App Engine
+      id: deploy
+      uses: google-github-actions/deploy-appengine@v0.2.0
+      with:
+        deliverables: dispatch.yaml hello/app.yaml health/app.yaml user/app.yaml
+        project_id: ${{ secrets.GCP_PROJECT }}
+        credentials: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Test
+      run: curl "{project url}"

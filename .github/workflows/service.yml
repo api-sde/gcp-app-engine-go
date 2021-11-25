@@ -1,0 +1,25 @@
+name: Go
+
+on: 
+  workflow_call:
+    inputs:
+      serviceName:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Build
+      run: cd ${{ inputs.serviceName }} && go build -v ./...
+
+    - name: Test
+      run: cd ${{ inputs.serviceName }} && go test -v ./...

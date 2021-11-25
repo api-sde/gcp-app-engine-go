@@ -1,0 +1,11 @@
+dispatch:
+
+  # Default service serves simple hostname request.
+  - url: "*/"
+    service: default
+
+  - url: "*/health*"
+    service: health
+
+  - url: "*/user*"
+    service: user
